@@ -1,6 +1,7 @@
 """関数設計"""
 # 1 関数名だけで処理を想像可能にする!
 from dataclasses import dataclass
+from datetime import date
 from distutils.command.build_scripts import first_line_re
 from email.policy import default
 
@@ -138,3 +139,104 @@ def do_something(users):
 
 # 処理の意味と、なぜそう書くのか？？を書く。　
 # なぜこう処理しないのか？？の説明！！
+
+
+# 11 コントローラー(main(), Djangoのview)に処理は書かない！
+# コントローラーには　値の入出力・処理全体の制御　を書く。
+# クエリパラメータを扱うライブラリ .. Form(Django), deform, WTForm
+# → 単体のモデルやデータとして扱うことを意識する！
+
+
+
+"""クラス設計"""
+# 12 辞書ではなくクラスでを定義する！
+# 再利用性が低い。チェックが増える。
+
+# Ex. (bad)
+# 引数にuserという辞書コレクションを期待している。。
+def get_full_name(user):
+    return user["last_name"] + user["first_name"]
+
+# Ex. (good) 特定のキーを持つ辞書を期待するならクラスを定義！
+import json
+from dataclasses import dataclass
+from datetime import date
+@dataclass
+class User:
+    last_name : str
+    first_name : str
+    birthday : date
+    # クラスにすると、処理をクラスのメソッドやプロパティーとして実装できる！
+    @property
+    def fullname(self):
+        return self.first_name + self.last_name
+    
+    @property
+    def age(self):
+        today = date.today()
+        born = self.birthday
+        age = today.year - born.year
+        if (today.month, today.day) < (born.month, born.day):
+            return age - 1
+        else:
+            return age
+    
+    def load_user():
+        with open("./user.json", encoding="utf-8") as f:
+            return User(**json.load(f))
+
+
+# 13 引数が多いクラスを定義するのは面倒。。→ dataclass を使う！
+# dataclassは型チェックもできるから、mypyで型チェックもできる！
+
+# Ex. (bad)
+class User:
+    def __init__(self, username, email, last_name, first_name, birthday, bio, role):
+        self.username = username
+        self.email = email
+        self.last_name = last_name
+        self.first_name = first_name
+        self.birthday = birthday
+        self.bio = bio
+        self.role = role
+
+# Ex. (good)  型とデフォルト引数に可読性が高くなる！
+from dataclasses import dataclass
+from datetime import date
+
+@dataclass
+class User:
+    username :str
+    email : str
+    last_name : str
+    first_name : str
+    birthday : date
+    role : str
+
+
+# 14 別メソッドに値を渡すためだけに属性を設定してはいけない。
+# 事前に他のメソッドを呼び出す必要がある。設計が間違い。
+# メソッド同士の呼び出し順番を規定しないようにする？
+
+#Ex. 変数や属性という「状態」を減らし、考えるべきこと・覚えておくことを減らす。
+# @propertyを使う。 
+def age():
+# ↓ ageを属性から@propertyに実装
+@property
+def age():
+
+
+# 15 別途のモジュールにアクセスするだけの関数にする
+@dataclass
+class Product:
+    id : int
+    name : str
+
+    @classmethod
+    def retrieve(cls, id : int) -> "Product":
+        data = retrieve_product_detail(id)
+        return cls(
+            id = data["id"],
+            name = data["name"],
+        )
+
