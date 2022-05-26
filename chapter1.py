@@ -276,7 +276,7 @@ class TestValidate:
         assert not validate("a" * 101)
 
 # Ex. (good)
-class TestValidate(self):
+class TestValidate:
     def test_valid(self):
         """
         検証が正しい
@@ -297,5 +297,18 @@ class TestValidate(self):
         """
         assert  not validate("a" * 101)
 
+# pytest
+class TestValidate:
+    @pytest.mark.parametrize("text", ["a", "a"*50, "a"*100])
+    def test_valid(self, text):
+        """
+        検証が正しい
+        """
+        assert  validate(text)
 
-
+    @pytest.mark.parametrize("text", ["", "a", 101])
+    def test_invalid(self, text):
+        """
+        検証が正しくない
+        """
+        assert  not validate(text)
