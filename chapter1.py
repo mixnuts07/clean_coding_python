@@ -68,7 +68,7 @@ def calc_tax_included(item, tax_rate = 0.1):
 # ↓ みたいにコレクションでない値で受け取る！
 def calc_tax_included(price, tax_rate = 0.1):
     return price * (1 + tax_rate)
- 
+
 # 上だとテストが楽！（１００を渡すだけで良い！）
 def test_calc_tax_included():
     assert calc_tax_included(100) == 110
@@ -170,7 +170,7 @@ class User:
     @property
     def fullname(self):
         return self.first_name + self.last_name
-    
+
     @property
     def age(self):
         today = date.today()
@@ -180,7 +180,7 @@ class User:
             return age - 1
         else:
             return age
-    
+
     def load_user():
         with open("./user.json", encoding="utf-8") as f:
             return User(**json.load(f))
@@ -219,7 +219,7 @@ class User:
 # メソッド同士の呼び出し順番を規定しないようにする？
 
 #Ex. 変数や属性という「状態」を減らし、考えるべきこと・覚えておくことを減らす。
-# @propertyを使う。 
+# @propertyを使う。
 def age():
 # ↓ ageを属性から@propertyに実装
 @property
@@ -239,4 +239,63 @@ class Product:
             id = data["id"],
             name = data["name"],
         )
+
+"""モジュール設計"""
+# 16　汎用的な名前は避ける。(util:便利なもの)
+
+
+# 17 ビジネスロジックをモジュール分割する
+# ビジネスロジック .. 具体的な業務に必要な処理。
+
+
+# 18 モジュール名のおすすめ
+# api, commands, consts.py, main.py, models.py などモジュール分割して、
+# __init__.py, item.py などにパッケージ分割する。
+# Ex.
+# 認証              : authentication
+# 認可,パーミッション : permission, authorization
+# バリデーション      : validation, validators
+# 例外              : exceptions
+
+
+# 19 テストにテストと同等の処理を書かない。
+# →　実装が間違っていてもテストと同じ結果になるから間違いに気付けない。
+# →　数値や文字列など具体的に入力したりする。。
+
+
+# 20  1つのテストメソッドでは１つの項目のみ確認
+
+# Ex. (bad)
+# 具体的なエラーがわからない。
+class TestValidate:
+    def test_validate(self):
+        assert validate("a")
+        assert validate("a" * 50)
+        assert validate("a" * 100)
+        assert not validate("a")
+        assert not validate("a" * 101)
+
+# Ex. (good)
+class TestValidate(self):
+    def test_valid(self):
+        """
+        検証が正しい
+        """
+        assert validate("a")
+        assert validate("a" * 50)
+        assert validate("a" * 100)
+
+    def test_invalid_too_short(self):
+        """
+        検証が正しくない：短い
+        """
+        assert  not vaidate("")
+
+    def test_invalid_too_long(self):
+        """
+        検証が正しくない：長い
+        """
+        assert  not validate("a" * 101)
+
+
 
