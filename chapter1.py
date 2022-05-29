@@ -312,3 +312,68 @@ class TestValidate:
         検証が正しくない
         """
         assert  not validate(text)
+
+
+# 21 テストは　準備・実行・検証　に分割！ → Arrange Act Assert パターン
+# ユニットテストでやること .. テスト対象を実行するための準備・対象の実行・最後に検証(assert) の３段階
+
+#Ex. 準備【Arrange】 実行【Act】 検証【Assert】
+class TestSignupAPIView:
+
+    @pytest.fixture
+    def target_api(self):
+        return "/api/signup"
+
+    def test_do_signup(self, target_api, django_app):
+        # 準備---
+        from account.models import User
+
+        params = {
+            "email" : "signup@example.com",
+            "name"  : "yamadataro",
+            "passwords" : "xxxxxxxxxx", 
+        }
+
+        # 実行---
+        res = django_app.post_json(target_api, params = params)
+
+        # 検証---
+        user = User.objects.all()[0]
+        expected = {
+            "status_code" : 201,
+            "user_email" : "signup@example.com",
+        }
+        actual = {
+            "status_code" : res.status_code,
+            "user_email" : user.email,
+        }
+        assert expected == actual
+
+# 22 単体テストしやすいか？　視点から　実装の設計へ！ → テストしにくい実装は設計が悪い！
+
+# 関数の引数に大きな値（csvファイルなど）が必要な設計にしない！
+# 処理を分離し、すべての動作確認に全てのデータが必要な設計にしない！
+# → 引数を id : int のように簡単なものにする！
+# どうしてもファイルなどの引数が必要なものもあっても良いが、数を減らす！
+
+
+# 23 テストが外部環境に依存しないよう気をつける！
+# → POST など外部通信を行う処理をそのままテストに書かない！
+
+# 外部APIは　responses ライブラリを使う！！
+# DBサーバーなどのミドルウェアは　SQLite / Redis は　fakeredis
+# S3/ DynamoDB　は　moto でモック
+# PC環境やディレクトリ構成は　tempfile
+
+
+# 24 テスト用のデータはテスト後に削除
+# テストケースが終わるタイミングで削除
+# tempfile モジュールの　NamedTemporaryFile は一時的なファイルが作られ、ファイルクローズと同時に削除してくれる！
+
+
+# 25 テストはテストユーティリティを使う！
+# Ex..
+# django.test / tempfile / responses / freezegun / pytest / pytest-django / pytest-freezegun / pytest-responses
+
+
+
