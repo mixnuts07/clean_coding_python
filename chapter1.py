@@ -1,9 +1,15 @@
-"""関数設計"""
-# 1 関数名だけで処理を想像可能にする!
+"""
+関数設計
+"""
+
+"""
+1 関数名だけで処理を想像可能にする!
+"""
 from dataclasses import dataclass
 from datetime import date
 from distutils.command.build_scripts import first_line_re
 from email.policy import default
+from typing import Type
 
 
 def write_item_csv(item):
@@ -11,14 +17,18 @@ def write_item_csv(item):
         f.write(item.name)
 
 
-# 2 関数名は具体的な意味の英単語！　→ より狭い意味！
+"""
+2 関数名は具体的な意味の英単語！　→ より狭い意味！
+"""
 # get よりは fetch, calc, aggregate(複数の情報から集計) etc..
 # Ex.
 # load, fetch, retrieve, search, calc, increase, decrease, merge, render, filter, aggregate, build, escape
 # dump, create, update, patch, remove, sync, memoize, publish, notify, flatten, minimize, validate
 
 
-# 3 関数名から想像できる型の戻り値
+"""
+3 関数名から想像できる型の戻り値
+"""
 # is_, has_, enabled_, _activated, _confirmed などはboolを返すと推測できるから、使う時注意！
 # bool型の関数は副作用が無いようにも注意！(外部アクセス、データ保存・読み込み、値の変換 etc.. )
 # → if is_valid のように使える！！
@@ -26,7 +36,9 @@ def is_valid(name):
     return not name.endswith(".txt")
 
 
-# 4 副作用のない関数にまとめる！
+"""
+4 副作用のない関数にまとめる！
+"""
 # →同じ入力を与えると常に同じ結果が出力するように！　→　テストしやすい！
 # 変更できない値を引数に入れる。という考え。（オブジェクトではなく文字列。リストではなくタプル）
 
@@ -44,12 +56,16 @@ def update_article(article, title, body):
     return article
 
 
-# 5 関数を意味づけできるように関数化！　むやみに処理のまとまりだけで分けたりしない。。
+"""
+5 関数を意味づけできるように関数化！　むやみに処理のまとまりだけで分けたりしない。。
+"""
 # プログラムの意図が分かりずらい。　関数の再利用が難しい。　単体テストしずらい。
 # → 再利用性、処理の意味で分けるように！
 
 
-# 6　デフォルト引数にリスト・辞書は設定しない
+"""
+6 デフォルト引数にリスト・辞書は設定しない
+"""
 # デフォルト引数の値は関数呼び出しのたびに初期化されない！
 # ミュータブル(更新可能)な値はデフォルト引数にしてはいけない→ 該当：リスト、辞書、集合
 
@@ -60,7 +76,9 @@ def foo(values = None):
     return values
 
 
-# 7 コレクションを引数にせず、str or int で受け取る！
+"""
+7 コレクションを引数にせず、str or int で受け取る！
+"""
 # Ex. 失敗例(消費税を計算したい場合でも、毎度["price"]をキーに持つ辞書を用意しないといけない。。)
 # → 関数の再利用性が低くなる！
 def calc_tax_included(item, tax_rate = 0.1):
@@ -81,7 +99,9 @@ class Item:
         return calc_tax_included(self.price)
 
 
-# 8 indexに意味を持たせない！
+"""
+8 indexに意味を持たせない!
+"""
 # 間に値が入ると意味が壊れる。index番号を覚えていなければいけない。
 # タプルで管理せず、辞書やクラスにする！！
 @dataclass
@@ -110,7 +130,9 @@ for n, item in enumerate(items, start=1):
     print(n, "個目を処理中...")
 
 
-# 9 引数に可変長引数 (*args, *kwargs) を使用しない！
+"""
+9 引数に可変長引数 (*args, *kwargs) を使用しない！
+"""
 # → 引数に間違えて値を与えてもエラーを吐かないから！
 # → 個別の引数で指定！
 class User:
@@ -127,7 +149,9 @@ some_obj = get_some_obj()
 json_ste = as_json(some_obj, first_name = "John", last_name = "Doe")
 
 
-# 10 コメントにはwhyを書く
+"""
+10 コメントにはwhyを書く
+"""
 # 関数の仕様を書く場合はコメントではなくdocstringに書く！
 def do_something(users):
     """~~する処理
@@ -148,8 +172,14 @@ def do_something(users):
 
 
 
-"""クラス設計"""
-# 12 辞書ではなくクラスでを定義する！
+"""
+クラス設計
+"""
+
+
+"""
+12 辞書ではなくクラスでを定義する！
+"""
 # 再利用性が低い。チェックが増える。
 
 # Ex. (bad)
@@ -186,7 +216,9 @@ class User:
             return User(**json.load(f))
 
 
-# 13 引数が多いクラスを定義するのは面倒。。→ dataclass を使う！
+"""
+13 引数が多いクラスを定義するのは面倒。。→ dataclass を使う！
+"""
 # dataclassは型チェックもできるから、mypyで型チェックもできる！
 
 # Ex. (bad)
@@ -214,7 +246,9 @@ class User:
     role : str
 
 
-# 14 別メソッドに値を渡すためだけに属性を設定してはいけない。
+"""
+14 別メソッドに値を渡すためだけに属性を設定してはいけない。
+"""
 # 事前に他のメソッドを呼び出す必要がある。設計が間違い。
 # メソッド同士の呼び出し順番を規定しないようにする？
 
@@ -226,7 +260,10 @@ def age():
 def age():
 
 
-# 15 別途のモジュールにアクセスするだけの関数にする
+"""
+15 別途のモジュールにアクセスするだけの関数にする
+"""
+
 @dataclass
 class Product:
     id : int
@@ -240,15 +277,25 @@ class Product:
             name = data["name"],
         )
 
-"""モジュール設計"""
-# 16　汎用的な名前は避ける。(util:便利なもの)
+"""
+モジュール設計
+"""
 
 
-# 17 ビジネスロジックをモジュール分割する
+"""
+16 汎用的な名前は避ける。(util:便利なもの)
+"""
+
+
+"""
+17 ビジネスロジックをモジュール分割する
+"""
 # ビジネスロジック .. 具体的な業務に必要な処理。
 
 
-# 18 モジュール名のおすすめ
+"""
+18 モジュール名のおすすめ
+"""
 # api, commands, consts.py, main.py, models.py などモジュール分割して、
 # __init__.py, item.py などにパッケージ分割する。
 # Ex.
@@ -258,12 +305,16 @@ class Product:
 # 例外              : exceptions
 
 
-# 19 テストにテストと同等の処理を書かない。
+"""
+19 テストにテストと同等の処理を書かない。
+"""
 # →　実装が間違っていてもテストと同じ結果になるから間違いに気付けない。
 # →　数値や文字列など具体的に入力したりする。。
 
 
-# 20  1つのテストメソッドでは１つの項目のみ確認
+"""
+20  1つのテストメソッドでは1つの項目のみ確認
+"""
 
 # Ex. (bad)
 # 具体的なエラーがわからない。
@@ -314,7 +365,9 @@ class TestValidate:
         assert  not validate(text)
 
 
-# 21 テストは　準備・実行・検証　に分割！ → Arrange Act Assert パターン
+"""
+21 テストは　準備・実行・検証　に分割！ → Arrange Act Assert パターン
+"""
 # ユニットテストでやること .. テスト対象を実行するための準備・対象の実行・最後に検証(assert) の３段階
 
 #Ex. 準備【Arrange】 実行【Act】 検証【Assert】
@@ -349,15 +402,19 @@ class TestSignupAPIView:
         }
         assert expected == actual
 
-# 22 単体テストしやすいか？　視点から　実装の設計へ！ → テストしにくい実装は設計が悪い！
 
+"""
+22 単体テストしやすいか？　視点から　実装の設計へ！ → テストしにくい実装は設計が悪い！
+"""
 # 関数の引数に大きな値（csvファイルなど）が必要な設計にしない！
 # 処理を分離し、すべての動作確認に全てのデータが必要な設計にしない！
 # → 引数を id : int のように簡単なものにする！
 # どうしてもファイルなどの引数が必要なものもあっても良いが、数を減らす！
 
 
-# 23 テストが外部環境に依存しないよう気をつける！
+"""
+23 テストが外部環境に依存しないよう気をつける！
+"""
 # → POST など外部通信を行う処理をそのままテストに書かない！
 
 # 外部APIは　responses ライブラリを使う！！
@@ -366,14 +423,79 @@ class TestSignupAPIView:
 # PC環境やディレクトリ構成は　tempfile
 
 
-# 24 テスト用のデータはテスト後に削除
+"""
+24 テスト用のデータはテスト後に削除
+"""
 # テストケースが終わるタイミングで削除
 # tempfile モジュールの　NamedTemporaryFile は一時的なファイルが作られ、ファイルクローズと同時に削除してくれる！
 
 
-# 25 テストはテストユーティリティを使う！
+"""
+25 テストはテストユーティリティを使う！
+"""
 # Ex..
 # django.test / tempfile / responses / freezegun / pytest / pytest-django / pytest-freezegun / pytest-responses
 
 
+"""
+26 テストケースごとにデータを用意する！
+"""
+# データを使い回すと予期せぬエラーが発生するかも。。
 
+# function
+def square_list(nums):
+    return [n * n for n in nums]
+square_list([1,2,3]) # => [1,4,9]
+# test
+class TestSquareList:
+    def test_square(self):
+        # Arrange 
+        test_list = [1,2,3]
+
+        # Act
+        actual = square_list(test_list)
+
+        # Assert
+        expected = [1,4,9]
+        assert actual == expected
+
+
+"""
+27 必要十分なデータを用意
+"""
+
+
+"""
+28 テストの実行順序に依存しないテストを書く！！！！
+"""
+# 1つのテストメソッドとして正しさの補償ができるように！
+# 単体テストは冗長になっても良いからメソッド間で共通のデータを持たないように！
+class TestSum:
+    def test_sum(self):
+        assert sum([0,1,2,3,4]) == 10
+    def test_negative(self):
+        assert sum([0,1,2,3,-5]) == 5
+    def test_type_error(self):
+        with pytest.raises(TypeError):
+            sum([1,None])
+
+
+"""
+29 returnがListのテストではリストの要素数もテストする!
+"""
+# code
+def load_items():
+    return ({"id":1, "name":"Coffee"}, {"id":2, "name":"Cake"})
+# test
+class TestLoadItems:
+    def test_load(self):
+        actual = load_items()
+
+        assert len(actual) == 2
+        assert actual[0] == {"id":1, "name":"Coffee"}
+        assert actual[1] == {"id":2, "name":"Cake"}
+
+
+"""
+30 テストに関係するデータ、パラメータのみ作る。
+"""
